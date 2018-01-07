@@ -1,11 +1,14 @@
 package com.greenarobean.regul2.regulautomobile;
 
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,14 +21,24 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewStub;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     Toolbar toolbar = null;
+    EditText pointage_start_time,pointage_time_expected,pointage_distance;
+    private int mHour, mMinute;
+    private int[] pointage = new int[3];
+    TimePickerDialog ttd;
+    EditText objEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +47,7 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        this.setPage("speciale", getString(R.string.speciales));
+        this.setPage("pointage", "StartPageDebug");
 
 
         FloatingActionButton btnNewSpeciale = (FloatingActionButton) findViewById(R.id.btnNewSpeciale);
@@ -49,6 +62,26 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        FloatingActionButton btnRefresh = findViewById(R.id.btnRefresh);
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                TextView pointage_moyenne = findViewById(R.id.pointage_moyenne);
+
+                if(pointage[1] == 0 || pointage[0] == 0) {
+
+                    pointage_moyenne.setText("Le temps imparti et la distance à parcourir sont nécessaires pour le calcul de la moyenne");
+                }
+                else {
+                    float moyenne = ( (float) pointage[2] / 1000) / ((float) pointage[1] / 3600) ;
+
+                    pointage_moyenne.setText("Moyenne : "+String.valueOf(moyenne)+" km/h");
+                }
+
+            }
+        });
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -57,6 +90,70 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        pointage_start_time = findViewById(R.id.pointage_start_time);
+        pointage_start_time.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                 setHour(v.getContext(), pointage_start_time);
+
+            }
+        });
+        pointage_time_expected = findViewById(R.id.pointage_time_expected);
+        pointage_time_expected.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                setHour(v.getContext(), pointage_time_expected);
+
+            }
+        });
+
+        pointage_distance = findViewById(R.id.pointage_distance);
+        pointage_distance.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) { }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                if(pointage_distance.getText().toString()!="") pointage[2] = Integer.parseInt(pointage_distance.getText().toString());
+                //Log.d("REGUL1", pointage_distance.getText().toString());
+
+            }
+        });
+    }
+
+    private void setHour(Context context, EditText lobjEditText) {
+
+        objEditText = lobjEditText;
+
+        ttd = new TimePickerDialog(context,new TimePickerDialog.OnTimeSetListener() {
+
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay,
+                                  int minute) {
+
+                mHour = hourOfDay;
+                mMinute = minute;
+
+                objEditText.setText(String.format("%02d", hourOfDay) + ":"
+                        + String.format("%02d", minute) );
+
+                int i = 0;
+                if(objEditText.getId() == R.id.pointage_start_time) i = 0;
+                if(objEditText.getId() == R.id.pointage_time_expected) i = 1;
+
+                pointage[i] = hourOfDay * 3600 + minute * 60;
+
+            }
+        }, mHour, mMinute, true);
+
+        ttd.setTitle(getString(R.string.select_hour));
+        ttd.show();
+
     }
 
     @Override
@@ -133,7 +230,7 @@ public class MainActivity extends AppCompatActivity
         inc.setVisibility(View.GONE);
 
         int idLayout = getResources().getIdentifier("inc_"+page, "id", getPackageName());
-Log.e("REGUL1", String.valueOf(idLayout));
+//Log.e("REGUL1", String.valueOf(idLayout));
         if(idLayout>0) {
             inc = (ConstraintLayout) findViewById(idLayout);
             inc.setVisibility(View.VISIBLE);
