@@ -26,8 +26,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
@@ -79,6 +86,24 @@ public class MainActivity extends AppCompatActivity
                     pointage_moyenne.setText("Moyenne : "+String.valueOf(moyenne)+" km/h");
                 }
 
+                Calendar date = new GregorianCalendar();
+// reset hour, minutes, seconds and millis
+                date.set(Calendar.HOUR_OF_DAY, 0);
+                date.set(Calendar.MINUTE, 0);
+                date.set(Calendar.SECOND, 0);
+                date.set(Calendar.MILLISECOND, 0);
+
+                date.add(Calendar.SECOND, pointage[0] + pointage[1] );
+
+                TextView pointage_txt_arrival = findViewById(R.id.pointage_txt_arrival);
+
+                /*LocalDateTime now = LocalDateTime.now();
+
+                String hour_arrival = now.format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH));
+*/
+                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
+                //Log.d("REGUL1", date.toString());
+                pointage_txt_arrival.setText(dateFormat.format(date.getTime()));
             }
         });
 
