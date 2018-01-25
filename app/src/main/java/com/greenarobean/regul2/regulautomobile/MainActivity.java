@@ -59,8 +59,8 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        this.setPage("pointage", "StartPageDebug");
-
+        //this.setPage("pointage", "StartPageDebug");
+        setPage("speciale_card", "StartPageDebug");
 
         FloatingActionButton btnNewSpeciale = (FloatingActionButton) findViewById(R.id.btnNewSpeciale);
         btnNewSpeciale.setOnClickListener(new View.OnClickListener() {
