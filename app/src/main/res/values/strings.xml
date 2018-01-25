@@ -9,4 +9,5 @@
     <string name="speciales">Spéciales</string>
     <string name="time_depart">Heure de départ</string>
     <string name="select_hour">Sélectionnez l\'heure</string>
+    <string name="countdownfinish">Relancer le décompte</string>
 </resources>

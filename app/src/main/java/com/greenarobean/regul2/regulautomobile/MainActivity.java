@@ -4,6 +4,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -25,10 +26,12 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.ToggleButton;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     private int[] pointage = new int[3];
     TimePickerDialog ttd;
     EditText objEditText;
+    TextView pointage_timeBeforeStart;
+    private CountDownTimer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +80,12 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
 
                 TextView pointage_moyenne = findViewById(R.id.pointage_moyenne);
+                pointage_timeBeforeStart = findViewById(R.id.pointage_timeBeforeStart);
+                ToggleButton pointage_btn_today = findViewById(R.id.pointage_btn_today);
+
+                //debug
+                pointage[0] = 19 * 3600 + 05 * 60;
+                pointage[1] = 2 * 3600;
 
                 if(pointage[1] == 0 || pointage[0] == 0) {
 
@@ -85,6 +96,15 @@ public class MainActivity extends AppCompatActivity
 
                     pointage_moyenne.setText("Moyenne : "+String.valueOf(moyenne)+" km/h");
                 }
+
+                Calendar now = new GregorianCalendar();
+                Calendar depart = new GregorianCalendar();
+                depart.set(Calendar.HOUR_OF_DAY, 0);
+                depart.set(Calendar.MINUTE, 0);
+                depart.set(Calendar.SECOND, 0);
+                depart.set(Calendar.MILLISECOND, 0);
+
+                depart.add(Calendar.SECOND, pointage[0] );
 
                 Calendar date = new GregorianCalendar();
 // reset hour, minutes, seconds and millis
@@ -97,6 +117,12 @@ public class MainActivity extends AppCompatActivity
 
                 TextView pointage_txt_arrival = findViewById(R.id.pointage_txt_arrival);
 
+                if(pointage_btn_today.isChecked()) {
+
+                    date.add(Calendar.DAY_OF_MONTH,1);
+                    depart.add(Calendar.DAY_OF_MONTH,1);
+                }
+
                 /*LocalDateTime now = LocalDateTime.now();
 
                 String hour_arrival = now.format(DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ENGLISH));
@@ -104,6 +130,28 @@ public class MainActivity extends AppCompatActivity
                 SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
                 //Log.d("REGUL1", date.toString());
                 pointage_txt_arrival.setText(dateFormat.format(date.getTime()));
+
+                Long diff = depart.getTimeInMillis() - now.getTimeInMillis();
+                Log.d("REGUL1", String.valueOf(diff));
+
+                if(timer != null) {
+                    timer.cancel();
+                }
+                timer = new CountDownTimer(diff, 1000) {
+
+                    public void onTick(long millisUntilFinished) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.FRANCE);
+                        pointage_timeBeforeStart.setText(dateFormat.format(millisUntilFinished));
+
+                        //here you can have your logic to set text to edittext
+                    }
+
+                    public void onFinish() {
+                        pointage_timeBeforeStart.setText(R.string.countdownfinish);
+                    }
+
+                }.start();
+
             }
         });
 
